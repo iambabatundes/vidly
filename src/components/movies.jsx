@@ -1,13 +1,30 @@
 import React, { useState } from "react";
+
 import { getMovies } from "../services/fakeMovieService";
+import Liked from "./common/like";
+import Pagination from "./common/pagination";
 
 function Movies() {
   const [movies, setMovies] = useState(getMovies());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(4);
 
   function handleDelete(movie) {
     const movieId = movies.filter((m) => m._id !== movie._id);
     setMovies(movieId);
   }
+
+  function handleLiked(movie) {
+    const movieId = [...movies];
+    const index = movies.indexOf(movie);
+    movieId[index] = { ...movies[index] };
+    movieId[index].liked = !movieId[index].liked;
+    setMovies(movieId);
+  }
+
+  //   function handlePageChange(page) {
+  //     setCurrentPage(currentPage);
+  //   }
 
   if (movies.length === 0) return <p>There are no movies in database</p>;
 
@@ -34,7 +51,9 @@ function Movies() {
               <td>{movie.genre.name}</td>
               <td>{movie.numberInStock}</td>
               <td>{movie.dailyRentalRate}</td>
-              <td></td>
+              <td>
+                <Liked liked={movie.liked} onClick={() => handleLiked(movie)} />
+              </td>
               <td>
                 <button
                   onClick={() => handleDelete(movie)}
@@ -47,6 +66,12 @@ function Movies() {
           ))}
         </tbody>
       </table>
+      <Pagination
+        itemsCount={movies.length}
+        pageSize={pageSize}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
     </>
   );
 }
