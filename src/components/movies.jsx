@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import _ from "lodash";
+import { Link } from "react-router-dom";
 
 import { getMovies } from "../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
-
+import SearchBox from "./common/searchBox";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
 import ListGroup from "./common/listGroup";
 import MoviesTable from "./moviesTable";
-import { Link } from "react-router-dom";
 
 function Movies() {
   const [movies, setMovies] = useState([]);
@@ -17,6 +17,7 @@ function Movies() {
   const [pageSize, setPageSize] = useState(4);
   const [selectedGenre, setSelectedGenre] = useState();
   const [sortColumn, setSortColumn] = useState({ path: "title", order: "asc" });
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const genres = [{ _id: "", name: "All Genres" }, ...getGenres()];
@@ -39,23 +40,34 @@ function Movies() {
 
   function handleGenreSelect(genre) {
     setSelectedGenre(genre);
+    setSearchQuery("");
     setCurrentPage(selectedGenre);
+  }
+
+  function handleSearch(query) {
+    setSearchQuery(query);
+    setSelectedGenre(null);
+    setCurrentPage(currentPage);
   }
 
   function handleSort(sortColumns) {
     setSortColumn(sortColumns);
   }
 
-  //   function handlePageChange(page) {
-  //     setCurrentPage(currentPage);
-  //   }
-
   if (movies.length === 0) return <p>There are no movies in database</p>;
 
-  const filtered =
-    selectedGenre && selectedGenre._id
-      ? movies.filter((m) => m.genre._id === selectedGenre._id)
-      : movies;
+  let filtered = movies;
+  if (searchQuery)
+    filtered = movies.filter((m) =>
+      m.title.toLowerCase().startsWith(searchQuery.toLowerCase())
+    );
+  else if (selectedGenre && selectedGenre._id)
+    filtered = movies.filter((m) => m.genre._id === selectedGenre._id);
+
+  // const filtered =
+  //   selectedGenre && selectedGenre._id
+  //     ? movies.filter((m) => m.genre._id === selectedGenre._id)
+  //     : movies;
 
   const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
