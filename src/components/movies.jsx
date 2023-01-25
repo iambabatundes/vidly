@@ -8,6 +8,7 @@ import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
 import ListGroup from "./common/listGroup";
 import MoviesTable from "./moviesTable";
+import { Link } from "react-router-dom";
 
 function Movies() {
   const [movies, setMovies] = useState([]);
@@ -70,7 +71,15 @@ function Movies() {
         />
       </div>
       <div className="col">
+        <Link
+          to="/movies/new"
+          className="btn btn-primary"
+          style={{ marginBottom: 20 }}
+        >
+          New Movie
+        </Link>
         <p>Showing {filtered.length} movies in database</p>
+        <SearchBox value={searchQuery} onChange={handleSearch} />
 
         <MoviesTable
           allMovies={allMovies}
