@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import _ from "lodash";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
-import { getMovies } from "../services/fakeMovieService";
-import { getGenres } from "../services/fakeGenreService";
+import { getMovies, deleteMovie } from "../services/movieService";
+import { getGenres } from "../services/genreService";
 import SearchBox from "./common/searchBox";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
@@ -14,20 +15,42 @@ function Movies() {
   const [movies, setMovies] = useState([]);
   const [genres, setGenres] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(4);
+  const [pageSize, setPageSize] = useState(8);
   const [selectedGenre, setSelectedGenre] = useState();
   const [sortColumn, setSortColumn] = useState({ path: "title", order: "asc" });
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const genres = [{ _id: "", name: "All Genres" }, ...getGenres()];
-    setMovies(getMovies());
-    setGenres(genres);
+    async function getGenre() {
+      const { data } = await getGenres();
+      const genres = [{ _id: "", name: "All Genres" }, ...data];
+
+      setGenres(genres);
+    }
+
+    getGenre();
+
+    async function getMovie() {
+      await getGenres();
+      const { data: movies } = await getMovies();
+      setMovies(movies);
+    }
+
+    getMovie();
   }, []);
 
-  function handleDelete(movie) {
-    const movieId = movies.filter((m) => m._id !== movie._id);
-    setMovies(movieId);
+  async function handleDelete(movie) {
+    const originalMovies = movies;
+    const movieId = originalMovies.filter((m) => m._id !== movie._id);
+
+    try {
+      await deleteMovie(movieId);
+    } catch (error) {
+      if (error.response && error.response.status === 404)
+        toast.error("This movie has already been deleted");
+
+      setMovies(originalMovies);
+    }
   }
 
   function handleLiked(movie) {
@@ -63,11 +86,6 @@ function Movies() {
     );
   else if (selectedGenre && selectedGenre._id)
     filtered = movies.filter((m) => m.genre._id === selectedGenre._id);
-
-  // const filtered =
-  //   selectedGenre && selectedGenre._id
-  //     ? movies.filter((m) => m.genre._id === selectedGenre._id)
-  //     : movies;
 
   const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 

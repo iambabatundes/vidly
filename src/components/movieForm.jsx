@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Joi from "joi";
 import { useParams, useNavigate } from "react-router-dom";
-import { getGenres } from "../services/fakeGenreService";
-import { getMovie, saveMovie } from "../services/fakeMovieService";
+import { getGenres } from "../services/genreService";
+import { getMovie, saveMovie } from "../services/movieService";
 import Input from "./common/input";
 import Select from "./common/select";
 
@@ -20,18 +20,27 @@ function MovieForm() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const genres = getGenres();
-    setGenres(genres);
+    async function getGenre() {
+      const { data: genres } = await getGenres();
+      setGenres(genres);
+    }
 
-    const movieId = params.id;
-    if (movieId === "new") return;
+    getGenre();
 
-    const movie = getMovie(movieId);
-    if (!movie) return navigate("/not-found", { replace: true });
+    async function getMovies() {
+      const movieId = params.id;
+      if (movieId === "new") return;
 
-    setData(viewModel(movie));
-
-    //navigate("/movies/:id");
+      try {
+        const { data: movie } = await getMovie(movieId);
+        setData(viewModel(movie));
+      } catch (error) {
+        if (error.response && error.response.status === 404)
+          navigate("/not-found", { replace: true });
+        else console.log("An Error Occured:", error.message);
+      }
+    }
+    getMovies();
   }, []);
 
   function viewModel(movie) {

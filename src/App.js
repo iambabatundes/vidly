@@ -1,5 +1,8 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Customers from "./components/customers";
 import Movies from "./components/movies";
 import NotFound from "./components/notFound";
@@ -13,20 +16,23 @@ import RegisterForm from "./components/registerForm";
 
 function App() {
   return (
-    <main className="container">
+    <>
+      <ToastContainer />
       <NavBar />
-      <Routes>
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/movies/:id" element={<MovieForm />} />
-        <Route path="/movies" element={<Movies />} />
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/rentals" element={<Rentals />} />
-        <Route path="/not-found" element={<NotFound />} />
-        <Route path="/" element={<Home />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </main>
+      <main className="container">
+        <Routes>
+          <Route path="/register" element={<RegisterForm />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/movies/:id" element={<MovieForm />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/rentals" element={<Rentals />} />
+          <Route path="/not-found" element={<NotFound />} />
+          <Route path="/" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+    </>
   );
 }
 
