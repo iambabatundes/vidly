@@ -15,7 +15,7 @@ function Movies() {
   const [movies, setMovies] = useState([]);
   const [genres, setGenres] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(4);
   const [selectedGenre, setSelectedGenre] = useState();
   const [sortColumn, setSortColumn] = useState({ path: "title", order: "asc" });
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,9 +42,10 @@ function Movies() {
   async function handleDelete(movie) {
     const originalMovies = movies;
     const movieId = originalMovies.filter((m) => m._id !== movie._id);
+    setMovies(movieId);
 
     try {
-      await deleteMovie(movieId);
+      await deleteMovie(movie._id);
     } catch (error) {
       if (error.response && error.response.status === 404)
         toast.error("This movie has already been deleted");
@@ -93,7 +94,7 @@ function Movies() {
 
   return (
     <div className="row">
-      <div className="col-3">
+      <div className="col-2">
         <ListGroup
           items={genres}
           selectedItem={selectedGenre}

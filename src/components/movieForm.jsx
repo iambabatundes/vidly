@@ -28,10 +28,9 @@ function MovieForm() {
     getGenre();
 
     async function getMovies() {
-      const movieId = params.id;
-      if (movieId === "new") return;
-
       try {
+        const movieId = params.id;
+        if (movieId === "new") return;
         const { data: movie } = await getMovie(movieId);
         setData(viewModel(movie));
       } catch (error) {
@@ -71,18 +70,18 @@ function MovieForm() {
     return errors;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const errors = validate();
+
     if (errors) {
       setData(null);
       setErrors(errors);
-    } else {
-      saveMovie(data);
-
-      navigate("/movies");
     }
+    await saveMovie(data);
+
+    navigate("/movies");
   }
 
   function validateProperty({ name, value }) {
