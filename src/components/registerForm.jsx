@@ -1,6 +1,8 @@
 import Joi from "joi";
 import React, { useState } from "react";
 import Input from "./common/input";
+import userService from "../services/userService";
+import auth from "../services/authService";
 
 function RegisterForm() {
   const [data, setData] = useState({ name: "", email: "", password: "" });
@@ -24,16 +26,25 @@ function RegisterForm() {
     return errors;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const errors = validate();
-    console.log(errors);
     setData(data);
     setErrors(errors || {});
     if (errors) return null;
 
-    console.log(data);
+    try {
+      const response = await userService.register(data);
+      auth.loginWithJwt(response.headers["x-auth-tokens"]);
+      window.localStorage = "/movies";
+    } catch (ex) {
+      if (ex.response && ex.response.status === 400) {
+        const error = { ...errors };
+        error.email = ex.response.data;
+        setErrors(error);
+      }
+    }
   }
 
   function validateProperty({ name, value }) {

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Liked from "./common/like";
 import Table from "./common/table";
+import auth from "../services/authService";
 
 function MoviesTable({
   allMovies,
@@ -11,6 +12,7 @@ function MoviesTable({
   sortColumn,
   columns,
 }) {
+  const user = auth.getCurrentUser();
   columns = [
     {
       path: "title",
@@ -28,14 +30,16 @@ function MoviesTable({
         <Liked liked={movie.liked} onClick={() => onLike(movie)} />
       ),
     },
-    {
-      key: "delete",
-      content: (movie) => (
-        <button onClick={() => onDelete(movie)} className="btn btn-danger">
-          Delete
-        </button>
-      ),
-    },
+    user && user.isAdmin
+      ? {
+          key: "delete",
+          content: (movie) => (
+            <button onClick={() => onDelete(movie)} className="btn btn-danger">
+              Delete
+            </button>
+          ),
+        }
+      : "",
   ];
   return (
     <Table

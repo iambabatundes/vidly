@@ -1,4 +1,5 @@
 import React from "react";
+import user from "../../services/userService";
 
 function TableHeader({ sortColumn, columns, onSort, raiseSort }) {
   raiseSort = (path) => {
@@ -24,7 +25,7 @@ function TableHeader({ sortColumn, columns, onSort, raiseSort }) {
       <tr className="clickable">
         {columns.map((column) => (
           <th
-            key={column.path || column.key}
+            key={column.path || column.key || user}
             onClick={() => raiseSort(column.path)}
           >
             {column.label} {renderSortIcon(column)}

@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import Joi from "joi";
 import Input from "./common/input";
+import auth from "../services/authService";
+import { toast } from "react-toastify";
+import { Navigate, useLocation } from "react-router-dom";
 
 function LoginForm() {
-  const [data, setData] = useState({ username: "", password: "" });
+  const [data, setData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
 
+  const { state } = useLocation();
+
   const schema = Joi.object({
-    username: Joi.string().min(3).label("Username"),
+    email: Joi.string().min(3).label("email"),
     password: Joi.string().label("Password"),
   });
 
@@ -21,7 +26,30 @@ function LoginForm() {
     return errors;
   }
 
-  function handleSubmit(event) {
+  // async function handleSubmit(event) {
+  //   event.preventDefault();
+
+  //   const errors = validate();
+  //   if (errors) {
+  //     setData(null);
+  //     setErrors(errors);
+  //     return;
+  //   }
+
+  //   try {
+  //     await auth.login(data.email, data.password);
+  //     toast.success("You are now logged in");
+  //   } catch (ex) {
+  //     if (ex.response && ex.response.status === 400) {
+  //       const error = { ...errors };
+  //       error.email = ex.response.data;
+  //       setErrors(error);
+  //       toast.error("Invalid email or password");
+  //     }
+  //   }
+  // }
+
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const errors = validate();
@@ -30,7 +58,16 @@ function LoginForm() {
     setErrors(errors || {});
     if (errors) return null;
 
-    console.log(data);
+    try {
+      await auth.login(data.email, data.password);
+      window.location = state ? state.path : "/movies";
+    } catch (ex) {
+      if (ex.response && ex.response.status === 400) {
+        const error = { ...errors };
+        error.email = ex.response.data;
+        setErrors(error);
+      }
+    }
   }
 
   function validateProperty({ name, value }) {
@@ -53,18 +90,19 @@ function LoginForm() {
 
     setErrors(error);
   }
-
+  if (auth.getCurrentUser()) return <Navigate to="/movies" />;
   return (
     <div>
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <Input
           autoFocus
-          name="username"
-          value={data.username}
+          name="email"
+          value={data.email}
           onChange={handleChange}
-          label="Username"
-          error={errors.username}
+          label="Email"
+          error={errors.email}
+          type="email"
         />
 
         <Input
@@ -73,6 +111,7 @@ function LoginForm() {
           label="Password"
           onChange={handleChange}
           error={errors.password}
+          type="password"
         />
 
         <button disabled={validate()} className="btn btn-primary">

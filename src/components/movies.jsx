@@ -11,7 +11,7 @@ import { paginate } from "../utils/paginate";
 import ListGroup from "./common/listGroup";
 import MoviesTable from "./moviesTable";
 
-function Movies() {
+function Movies({ user }) {
   const [movies, setMovies] = useState([]);
   const [genres, setGenres] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -102,13 +102,15 @@ function Movies() {
         />
       </div>
       <div className="col">
-        <Link
-          to="/movies/new"
-          className="btn btn-primary"
-          style={{ marginBottom: 20 }}
-        >
-          New Movie
-        </Link>
+        {user && (
+          <Link
+            to="/movies/new"
+            className="btn btn-primary"
+            style={{ marginBottom: 20 }}
+          >
+            New Movie
+          </Link>
+        )}
         <p>Showing {filtered.length} movies in database</p>
         <SearchBox value={searchQuery} onChange={handleSearch} />
 
