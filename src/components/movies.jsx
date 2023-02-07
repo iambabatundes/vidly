@@ -78,7 +78,7 @@ function Movies({ user }) {
     setSortColumn(sortColumns);
   }
 
-  if (movies.length === 0) return <p>There are no movies in database</p>;
+  // if (movies.length === 0) return <p>There are no movies in database</p>;
 
   let filtered = movies;
   if (searchQuery)
